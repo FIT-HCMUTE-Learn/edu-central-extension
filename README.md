@@ -1,1 +1,1 @@
-# edu-central-main
+# edu-central-extension
