@@ -60,7 +60,7 @@ public class LecturerSchedulerController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<ApiMessageDto<LecturerSchedulerDto>> createPeriod(@Valid @RequestBody LecturerSchedulerCreateForm form) {
+    public ResponseEntity<ApiMessageDto<LecturerSchedulerDto>> createLecturerScheduler(@Valid @RequestBody LecturerSchedulerCreateForm form) {
         LecturerScheduler lecturerScheduler = lecturerSchedulerMapper.toEntity(form);
         LecturerScheduler savedLecturerScheduler = lecturerSchedulerRepository.save(lecturerScheduler);
 
@@ -71,7 +71,7 @@ public class LecturerSchedulerController {
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<ApiMessageDto<LecturerSchedulerDto>> updatePeriod(@PathVariable Long id,
+    public ResponseEntity<ApiMessageDto<LecturerSchedulerDto>> updateLecturerScheduler(@PathVariable Long id,
                                                                             @Valid @RequestBody LecturerSchedulerUpdateForm form) {
         LecturerScheduler lecturerScheduler = findLecturerSchedulerById(id);
         lecturerSchedulerMapper.updateEntity(lecturerScheduler, form);
@@ -84,7 +84,7 @@ public class LecturerSchedulerController {
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<ApiMessageDto<Void>> deletePeriod(@PathVariable Long id) {
+    public ResponseEntity<ApiMessageDto<Void>> deleteLecturerScheduler(@PathVariable Long id) {
         LecturerScheduler lecturerScheduler = findLecturerSchedulerById(id);
         lecturerSchedulerRepository.delete(lecturerScheduler);
 
