@@ -1,5 +1,6 @@
 package com.landingis.api.model.criteria;
 
+import com.landingis.api.model.entity.LecturerScheduler;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.jpa.domain.Specification;
@@ -11,8 +12,8 @@ import java.util.List;
 
 @Getter
 @Setter
-public class LecturerScheduler {
-    private Long lectureId;
+public class LecturerSchedulerCriteria {
+    private Long lecturerId;
     private Long courseId;
     private Long periodId;
 
@@ -22,8 +23,8 @@ public class LecturerScheduler {
 
             Join<Object, Object> periodJoin = root.join("period");
 
-            if (lectureId != null) {
-                predicates.add(cb.equal(root.get("lectureId"), lectureId));
+            if (lecturerId != null) {
+                predicates.add(cb.equal(root.get("lecturerId"), lecturerId));
             }
             if (courseId != null) {
                 predicates.add(cb.equal(root.get("courseId"), courseId));

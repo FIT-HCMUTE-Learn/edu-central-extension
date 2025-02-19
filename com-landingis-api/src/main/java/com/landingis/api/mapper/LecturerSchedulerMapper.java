@@ -30,6 +30,7 @@ public abstract class LecturerSchedulerMapper {
             @Mapping(source = "courseId", target = "courseId"),
             @Mapping(source = "periodId", target = "period", qualifiedByName = "mapPeriodIdToPeriod")
     })
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     public abstract void updateEntity(@MappingTarget LecturerScheduler lecturerScheduler, LecturerSchedulerUpdateForm form);
 
     @Mappings({

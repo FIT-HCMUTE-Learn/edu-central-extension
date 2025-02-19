@@ -27,6 +27,7 @@ public interface PeriodMapper {
             @Mapping(source = "periodDueDate", target = "dueDate"),
             @Mapping(source = "periodState", target = "state")
     })
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateEntity(@MappingTarget Period period, PeriodUpdateForm form);
 
     @Mappings({

@@ -9,6 +9,7 @@ import lombok.Setter;
 
 import javax.validation.constraints.Future;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
 @Getter
@@ -26,13 +27,15 @@ public class PeriodCreateForm {
 
     @ApiModelProperty(value = "Period start date", example = "18/2/2050", required = true)
     @Future(message = "Period start date must be in the future")
+    @NotNull(message = "Period start date can not be null")
     private LocalDate periodStartDate;
 
     @ApiModelProperty(value = "Period due date", example = "20/2/2050", required = true)
     @Future(message = "Period due date must be in the future")
+    @NotNull(message = "Period due date can not be null")
     private LocalDate periodDueDate;
 
     @ApiModelProperty(value = "Period state (0: Init, 1: Recruit, 2: Done", example = "0", required = true)
-    @PeriodState
+    @PeriodState(allowNull = false)
     private Integer periodState;
 }
