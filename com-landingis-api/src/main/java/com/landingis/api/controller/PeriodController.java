@@ -63,7 +63,7 @@ public class PeriodController {
     public ResponseEntity<ApiMessageDto<PeriodDto>> createPeriod(@Valid @RequestBody PeriodCreateForm form) {
         Period period = periodMapper.toEntity(form);
 
-        checkBusinessLogic(period);
+        checkStartDateAndDueDate(period);
         Period savedPeriod = periodRepository.save(period);
 
         ApiMessageDto<PeriodDto> response = ApiMessageUtils
@@ -77,7 +77,7 @@ public class PeriodController {
         Period period = findPeriodById(id);
         periodMapper.updateEntity(period, form);
 
-        checkBusinessLogic(period);
+        checkStartDateAndDueDate(period);
         Period updatedPeriod = periodRepository.save(period);
 
         ApiMessageDto<PeriodDto> response = ApiMessageUtils
@@ -103,7 +103,7 @@ public class PeriodController {
         );
     }
 
-    private void checkBusinessLogic(Period period) {
+    private void checkStartDateAndDueDate(Period period) {
         if (period.getStartDate().isAfter(period.getDueDate())) {
             throw new BusinessException("Start date must be before due date");
         }

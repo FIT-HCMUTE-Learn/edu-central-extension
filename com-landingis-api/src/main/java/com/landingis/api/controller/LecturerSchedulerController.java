@@ -3,6 +3,7 @@ package com.landingis.api.controller;
 import com.landingis.api.dto.ApiMessageDto;
 import com.landingis.api.dto.PaginationDto;
 import com.landingis.api.dto.lecturerscheduler.LecturerSchedulerDto;
+import com.landingis.api.exception.BusinessException;
 import com.landingis.api.exception.ResourceNotFoundException;
 import com.landingis.api.form.lecturerscheduler.LecturerSchedulerCreateForm;
 import com.landingis.api.form.lecturerscheduler.LecturerSchedulerUpdateForm;
@@ -10,6 +11,7 @@ import com.landingis.api.mapper.LecturerSchedulerMapper;
 import com.landingis.api.model.criteria.LecturerSchedulerCriteria;
 import com.landingis.api.model.entity.LecturerScheduler;
 import com.landingis.api.repository.LecturerSchedulerRepository;
+import com.landingis.api.repository.PeriodRepository;
 import com.landingis.api.util.ApiMessageUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -19,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/lecturer-scheduler/")
@@ -29,6 +32,9 @@ public class LecturerSchedulerController {
 
     @Autowired
     private LecturerSchedulerMapper lecturerSchedulerMapper;
+
+    @Autowired
+    private PeriodRepository periodRepository;
 
     @GetMapping("/list")
     public ResponseEntity<ApiMessageDto<PaginationDto<LecturerSchedulerDto>>> getAll(
@@ -61,6 +67,15 @@ public class LecturerSchedulerController {
 
     @PostMapping("/create")
     public ResponseEntity<ApiMessageDto<LecturerSchedulerDto>> createLecturerScheduler(@Valid @RequestBody LecturerSchedulerCreateForm form) {
+        if (periodRepository.findById(form.getPeriodId()).isEmpty()) {
+            throw new ResourceNotFoundException("Period with id " + form.getPeriodId() + " not found");
+        }
+        if (lecturerSchedulerRepository.findByLecturerIdAndCourseIdAndPeriod(form.getLecturerId(), form.getCourseId(), form.getPeriodId())
+                .isPresent()) {
+            throw new BusinessException("Lecturer have registered course in period ("
+                    + form.getLecturerId() + ", " + form.getCourseId() + ", " + form.getPeriodId() + ")");
+        }
+
         LecturerScheduler lecturerScheduler = lecturerSchedulerMapper.toEntity(form);
         LecturerScheduler savedLecturerScheduler = lecturerSchedulerRepository.save(lecturerScheduler);
 
@@ -72,9 +87,22 @@ public class LecturerSchedulerController {
 
     @PutMapping("/update/{id}")
     public ResponseEntity<ApiMessageDto<LecturerSchedulerDto>> updateLecturerScheduler(@PathVariable Long id,
-                                                                            @Valid @RequestBody LecturerSchedulerUpdateForm form) {
+                                                                                       @Valid @RequestBody LecturerSchedulerUpdateForm form) {
+        if (form.getPeriodId() != null) {
+            periodRepository.findById(form.getPeriodId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Period with id " + form.getPeriodId() + " not found"));
+        }
         LecturerScheduler lecturerScheduler = findLecturerSchedulerById(id);
         lecturerSchedulerMapper.updateEntity(lecturerScheduler, form);
+
+        Optional<LecturerScheduler> test = lecturerSchedulerRepository.findByLecturerIdAndCourseIdAndPeriod(
+                lecturerScheduler.getLecturerId(), lecturerScheduler.getCourseId(), lecturerScheduler.getPeriod().getId()
+        );
+        if (test.isPresent() && !test.get().getId().equals(lecturerScheduler.getId())) {
+            throw new BusinessException("Lecturer have registered course in period ("
+                    + form.getLecturerId() + ", " + form.getCourseId() + ", " + form.getPeriodId() + ")");
+        }
+
         LecturerScheduler updatedLecturerScheduler = lecturerSchedulerRepository.save(lecturerScheduler);
 
         ApiMessageDto<LecturerSchedulerDto> response = ApiMessageUtils
