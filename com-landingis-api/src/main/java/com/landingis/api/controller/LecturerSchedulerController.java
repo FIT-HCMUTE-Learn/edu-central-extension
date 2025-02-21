@@ -18,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -37,6 +38,7 @@ public class LecturerSchedulerController {
     private PeriodRepository periodRepository;
 
     @GetMapping("/list")
+    @PreAuthorize("hasAuthority('C_GET')")
     public ResponseEntity<ApiMessageDto<PaginationDto<LecturerSchedulerDto>>> getAll(
             LecturerSchedulerCriteria lecturerSchedulerCriteria,
             Pageable pageable
@@ -58,6 +60,7 @@ public class LecturerSchedulerController {
     }
 
     @GetMapping("/get/{id}")
+    @PreAuthorize("hasAuthority('C_GET')")
     public ResponseEntity<ApiMessageDto<LecturerSchedulerDto>> getById(@PathVariable Long id) {
         ApiMessageDto<LecturerSchedulerDto> response = ApiMessageUtils
                 .success(lecturerSchedulerMapper.toDto(findLecturerSchedulerById(id)), "Successfully retrieved lecturer-scheduler by id");
@@ -66,6 +69,7 @@ public class LecturerSchedulerController {
     }
 
     @PostMapping("/create")
+    @PreAuthorize("hasAuthority('C_POST')")
     public ResponseEntity<ApiMessageDto<LecturerSchedulerDto>> createLecturerScheduler(@Valid @RequestBody LecturerSchedulerCreateForm form) {
         if (periodRepository.findById(form.getPeriodId()).isEmpty()) {
             throw new ResourceNotFoundException("Period with id " + form.getPeriodId() + " not found");
@@ -86,6 +90,7 @@ public class LecturerSchedulerController {
     }
 
     @PutMapping("/update")
+    @PreAuthorize("hasAuthority('C_PUT')")
     public ResponseEntity<ApiMessageDto<LecturerSchedulerDto>> updateLecturerScheduler(
             @Valid @RequestBody LecturerSchedulerUpdateForm form
     ) {
@@ -113,6 +118,7 @@ public class LecturerSchedulerController {
     }
 
     @DeleteMapping("/delete/{id}")
+    @PreAuthorize("hasAuthority('C_DELETE')")
     public ResponseEntity<ApiMessageDto<Void>> deleteLecturerScheduler(@PathVariable Long id) {
         LecturerScheduler lecturerScheduler = findLecturerSchedulerById(id);
         lecturerSchedulerRepository.delete(lecturerScheduler);
