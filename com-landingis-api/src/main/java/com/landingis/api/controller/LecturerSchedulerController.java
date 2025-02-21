@@ -85,14 +85,15 @@ public class LecturerSchedulerController {
         return ResponseEntity.ok(response);
     }
 
-    @PutMapping("/update/{id}")
-    public ResponseEntity<ApiMessageDto<LecturerSchedulerDto>> updateLecturerScheduler(@PathVariable Long id,
-                                                                                       @Valid @RequestBody LecturerSchedulerUpdateForm form) {
+    @PutMapping("/update")
+    public ResponseEntity<ApiMessageDto<LecturerSchedulerDto>> updateLecturerScheduler(
+            @Valid @RequestBody LecturerSchedulerUpdateForm form
+    ) {
         if (form.getPeriodId() != null) {
             periodRepository.findById(form.getPeriodId())
                     .orElseThrow(() -> new ResourceNotFoundException("Period with id " + form.getPeriodId() + " not found"));
         }
-        LecturerScheduler lecturerScheduler = findLecturerSchedulerById(id);
+        LecturerScheduler lecturerScheduler = findLecturerSchedulerById(form.getLecturerSchedulerId());
         lecturerSchedulerMapper.updateEntity(lecturerScheduler, form);
 
         Optional<LecturerScheduler> test = lecturerSchedulerRepository.findByLecturerIdAndCourseIdAndPeriod(

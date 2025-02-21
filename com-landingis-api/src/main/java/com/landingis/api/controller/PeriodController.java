@@ -72,9 +72,9 @@ public class PeriodController {
         return ResponseEntity.ok(response);
     }
 
-    @PutMapping("/update/{id}")
-    public ResponseEntity<ApiMessageDto<PeriodDto>> updatePeriod(@PathVariable Long id, @Valid @RequestBody PeriodUpdateForm form) {
-        Period period = findPeriodById(id);
+    @PutMapping("/update")
+    public ResponseEntity<ApiMessageDto<PeriodDto>> updatePeriod(@Valid @RequestBody PeriodUpdateForm form) {
+        Period period = findPeriodById(form.getPeriodId());
         periodMapper.updateEntity(period, form);
 
         checkStartDateAndDueDate(period);
