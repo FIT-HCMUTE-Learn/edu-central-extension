@@ -1,5 +1,6 @@
 package com.landingis.api.security;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -13,7 +14,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Collections;
+import java.util.List;
 
 @Component
 public class JwtFilter extends OncePerRequestFilter {
@@ -25,12 +26,24 @@ public class JwtFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
         String token = extractJwtFromRequest(request);
+
         if (token != null) {
             try {
-                String username = jwtUtil.extractUsername(token);
+                Claims claims = jwtUtil.extractAllClaims(token);
+                Long userId = claims.get("userId", Long.class);
+                String username = claims.getSubject();
+                String group = claims.get("group", String.class);
+                Integer kind = claims.get("kind", Integer.class);
+                Boolean isSuperAdmin = claims.get("isSuperAdmin", Boolean.class);
+                List<String> pcodes = claims.get("pcodes", List.class);
+
+                CustomUserDetails userDetails = new CustomUserDetails(userId, username, "", group, kind, isSuperAdmin, pcodes);
+
                 UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(username, null, Collections.emptyList());
+                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+
             } catch (ExpiredJwtException e) {
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token expired");
                 return;
@@ -39,6 +52,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 return;
             }
         }
+
         chain.doFilter(request, response);
     }
 
